@@ -1,12 +1,10 @@
 /* =====================================
    EVA EARNING ADMIN DASHBOARD
-   PART 6
 ===================================== */
 
 
 const admin =
 JSON.parse(localStorage.getItem("admin"));
-
 
 
 // Check Admin Login
@@ -18,9 +16,6 @@ window.location.href="index.html";
 }
 
 
-
-
-
 // Logout
 
 const logoutAdmin =
@@ -29,37 +24,29 @@ document.getElementById("logoutAdmin");
 
 if(logoutAdmin){
 
-
-logoutAdmin.onclick=()=>{
-
+logoutAdmin.onclick = ()=>{
 
 localStorage.removeItem("admin");
 
-
 window.location.href="index.html";
 
-
 };
-
 
 }
 
 
 
-
-
-
-
-// Load Users
+// ==========================
+// LOAD USERS
+// ==========================
 
 async function loadUsers(){
-
 
 try{
 
 
 const response =
-await fetch("/api/admin-users");
+await fetch("/api/admin?action=users");
 
 
 const data =
@@ -78,10 +65,7 @@ data.users.length;
 
 
 let box =
-document.getElementById(
-"usersList"
-);
-
+document.getElementById("usersList");
 
 
 box.innerHTML="";
@@ -118,10 +102,7 @@ PKR ${user.wallet || 0}
 
 `;
 
-
-
 });
-
 
 
 }
@@ -130,35 +111,26 @@ PKR ${user.wallet || 0}
 
 }catch(error){
 
-
 console.log(error);
 
+}
 
 }
 
 
 
-}
-
-
-
-
-
-
-
-
-
-// Load Withdraw Requests
+// ==========================
+// LOAD WITHDRAWS
+// ==========================
 
 
 async function loadWithdraws(){
-
 
 try{
 
 
 const response =
-await fetch("/api/admin-withdraws");
+await fetch("/api/admin?action=withdraws");
 
 
 const data =
@@ -169,12 +141,8 @@ await response.json();
 if(data.success){
 
 
-
 let list =
-document.getElementById(
-"withdrawList"
-);
-
+document.getElementById("withdrawList");
 
 
 list.innerHTML="";
@@ -190,7 +158,6 @@ let rejected=0;
 data.withdraws.forEach(item=>{
 
 
-
 if(item.status==="Pending")
 pending++;
 
@@ -204,7 +171,6 @@ rejected++;
 
 
 
-
 list.innerHTML += `
 
 
@@ -213,11 +179,7 @@ list.innerHTML += `
 
 <div>
 
-
-<b>
-${item.name}
-</b>
-
+<b>${item.name}</b>
 
 <br>
 
@@ -226,7 +188,6 @@ ${item.method}
 <br>
 
 PKR ${item.amount}
-
 
 <br>
 
@@ -241,8 +202,7 @@ ${item.status}
 <div>
 
 
-<button 
-class="approveBtn"
+<button
 onclick="updateWithdraw('${item._id}','Approved')">
 
 Approve
@@ -251,9 +211,7 @@ Approve
 
 
 
-
-<button 
-class="rejectBtn"
+<button
 onclick="updateWithdraw('${item._id}','Rejected')">
 
 Reject
@@ -261,11 +219,11 @@ Reject
 </button>
 
 
-</div>
-
 
 </div>
 
+
+</div>
 
 
 `;
@@ -281,17 +239,91 @@ document.getElementById(
 ).innerHTML=pending;
 
 
-
 document.getElementById(
 "approvedWithdraw"
 ).innerHTML=approved;
-
 
 
 document.getElementById(
 "rejectedWithdraw"
 ).innerHTML=rejected;
 
+
+
+}
+
+
+
+}catch(error){
+
+console.log(error);
+
+}
+
+
+}
+
+
+
+// ==========================
+// UPDATE WITHDRAW
+// ==========================
+
+
+async function updateWithdraw(id,status){
+
+
+try{
+
+
+let action =
+status === "Approved"
+?
+"approve"
+:
+"reject";
+
+
+
+const response =
+await fetch(
+"/api/admin?action=" + action,
+{
+
+
+method:"POST",
+
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+
+body:JSON.stringify({
+
+id
+
+})
+
+
+});
+
+
+
+const data =
+await response.json();
+
+
+
+if(data.success){
+
+
+alert("Updated Successfully");
+
+
+loadWithdraws();
 
 
 }
@@ -313,60 +345,11 @@ console.log(error);
 
 
 
+// ==========================
+// START DASHBOARD
+// ==========================
 
 
+loadUsers();
 
-
-// Update Withdraw Status
-
-
-async function updateWithdraw(id,status){
-
-
-try{
-
-
-let response =
-await fetch("/api/update-withdraw",{
-
-
-method:"POST",
-
-
-headers:{
-
-
-"Content-Type":"application/json"
-
-
-},
-
-
-body:JSON.stringify({
-
-id,
-
-status
-
-})
-
-
-});
-
-
-
-let data =
-await response.json();
-
-
-
-if(data.success){
-
-
-alert(
-"Updated Successfully"
-);
-
-
-
-load
+loadWithdraws();
