@@ -37,7 +37,7 @@ return;
 try{
 
 
-let response = await fetch("/api/admin-login",{
+let response = await fetch("/api/admin?action=login",{
 
 
 method:"POST",
