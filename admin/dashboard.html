@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Eva Earning Admin Dashboard</title>
+
+<link rel="stylesheet" href="dashboard.css">
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet">
+
+</head>
+
+
+<body>
+
+
+<header class="adminHeader">
+
+
+<div>
+
+<h1>
+Eva Earning
+</h1>
+
+<p>
+Admin Dashboard
+</p>
+
+</div>
+
+
+
+<button id="logoutAdmin">
+
+Logout
+
+</button>
+
+
+
+</header>
+
+
+
+
+
+<main class="dashboard">
+
+
+
+
+
+<div class="stats">
+
+
+
+<div class="card">
+
+<span class="material-symbols-rounded">
+group
+</span>
+
+<h2 id="totalUsers">
+0
+</h2>
+
+<p>
+Total Users
+</p>
+
+</div>
+
+
+
+
+<div class="card">
+
+<span class="material-symbols-rounded">
+pending_actions
+</span>
+
+<h2 id="pendingWithdraw">
+0
+</h2>
+
+<p>
+Pending Withdraw
+</p>
+
+</div>
+
+
+
+
+
+<div class="card">
+
+<span class="material-symbols-rounded">
+check_circle
+</span>
+
+<h2 id="approvedWithdraw">
+0
+</h2>
+
+<p>
+Approved Withdraw
+</p>
+
+</div>
+
+
+
+
+
+<div class="card">
+
+<span class="material-symbols-rounded">
+cancel
+</span>
+
+<h2 id="rejectedWithdraw">
+0
+</h2>
+
+<p>
+Rejected Withdraw
+</p>
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+<section class="panel">
+
+
+<h2>
+Withdraw Requests
+</h2>
+
+
+
+<div id="withdrawList">
+
+
+<p>
+Loading Requests...
+</p>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<section class="panel">
+
+
+<h2>
+Users
+</h2>
+
+
+<div id="usersList">
+
+
+<p>
+Loading Users...
+</p>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+</main>
+
+
+
+
+
+<script src="dashboard.js"></script>
+
+
+</body>
+
+</html>
