@@ -315,7 +315,7 @@ async function saveUser(){
 
     try{
 
-        await fetch("/api/update-user",{
+        await fetch("/api/app?action=update-user",{
 
             method:"POST",
 
@@ -531,8 +531,7 @@ try{
 
 
 const loginResponse =
-await fetch(
-"/api/login",
+await fetch("/api/app?action=login",
 {
 
 
@@ -638,8 +637,7 @@ return;
 
 
 const registerResponse =
-await fetch(
-"/api/register",
+await fetch("/api/app?action=register",
 {
 
 
@@ -697,8 +695,7 @@ showToast(
 
 
 const autoLogin =
-await fetch(
-"/api/login",
+await fetch("/api/app?action=login",
 {
 
 
@@ -1469,8 +1466,7 @@ try{
 
 
 const response =
-await fetch(
-"/api/withdraw",
+await fetch("/api/app?action=withdraw",
 {
 
 
@@ -1934,9 +1930,7 @@ try{
 
 
 const response =
-await fetch(
-`/api/withdraw-history?phone=${currentUser.phone}`
-);
+await fetch(`/api/app?action=withdraw-history&phone=${currentUser.phone}`);
 
 
 
@@ -2656,4 +2650,4 @@ showToast(
 
 console.log(
 "✅ Eva Earning Complete Script Loaded"
-);
+)
