@@ -1,132 +1,380 @@
-const adminLoginBtn = document.getElementById("adminLoginBtn");
+const { MongoClient, ObjectId } = require("mongodb");
 
-const adminEmail = document.getElementById("adminEmail");
-const adminPassword = document.getElementById("adminPassword");
-const adminMessage = document.getElementById("adminMessage");
+const uri = process.env.MONGO_URI;
 
+const ADMIN_USERNAME = "admin";
+const ADMIN_PASSWORD = "Eva@12345";
 
 
-if(adminLoginBtn){
+module.exports = async function handler(req, res) {
 
+  const action = req.query.action;
 
-adminLoginBtn.onclick = async ()=>{
+  const client = new MongoClient(uri);
 
 
-let username = adminEmail.value.trim();
+  try {
 
-let password = adminPassword.value.trim();
+    await client.connect();
 
+    const db = client.db("eva_earning");
 
+    const users = db.collection("users");
+    const withdraws = db.collection("withdraws");
 
-if(!username || !password){
 
 
-adminMessage.innerHTML =
-"⚠ Enter username and password";
+    // ADMIN LOGIN
+    if (action === "login") {
 
 
-return;
+      if (req.method !== "POST") {
 
+        return res.status(405).json({
+          success:false,
+          message:"Method not allowed"
+        });
 
-}
+      }
 
 
+      const {
+        username,
+        password
+      } = req.body;
 
 
 
-try{
+      if (
+        username === ADMIN_USERNAME &&
+        password === ADMIN_PASSWORD
+      ) {
 
 
-let response = await fetch("/api/admin?action=login",{
+        return res.json({
 
+          success:true,
 
-method:"POST",
+          message:"Admin Login Successful",
 
+          admin:{
+            username
+          }
 
-headers:{
+        });
 
 
-"Content-Type":"application/json"
+      }
 
 
-},
 
+      return res.status(401).json({
 
-body:JSON.stringify({
+        success:false,
 
+        message:"Invalid Login"
 
-username,
+      });
 
-password
 
 
-})
+    }
 
 
-});
 
 
+    // STATS
 
-let data = await response.json();
+    if(action === "stats"){
 
 
+      const totalUsers =
+      await users.countDocuments();
 
 
-if(data.success){
 
+      const pending =
+      await withdraws.countDocuments({
+        status:"Pending"
+      });
 
 
-localStorage.setItem(
-"admin",
-JSON.stringify(data.admin)
-);
+      const approved =
+      await withdraws.countDocuments({
+        status:"Approved"
+      });
 
 
+      const rejected =
+      await withdraws.countDocuments({
+        status:"Rejected"
+      });
 
-adminMessage.innerHTML =
-"✅ Login Successful";
 
 
+      const amount =
+      await withdraws.aggregate([
 
-setTimeout(()=>{
+        {
+          $match:{
+            status:"Approved"
+          }
+        },
 
+        {
+          $group:{
+            _id:null,
+            total:{
+              $sum:"$amount"
+            }
+          }
+        }
 
-window.location.href =
-"dashboard.html";
 
+      ]).toArray();
 
-},1000);
 
 
+      return res.json({
 
-}else{
+        success:true,
 
+        stats:{
 
+          totalUsers,
+          pending,
+          approved,
+          rejected,
 
-adminMessage.innerHTML =
-"❌ Invalid Login";
+          totalApprovedAmount:
+          amount.length
+          ?
+          amount[0].total
+          :
+          0
 
+        }
 
-}
+      });
 
 
+    }
 
-}catch(error){
 
 
 
-console.log(error);
 
+    // USERS
 
-adminMessage.innerHTML =
-"❌ Server Error";
+    if(action==="users"){
 
 
-}
+      const allUsers =
+      await users.find({}).toArray();
 
+
+
+      return res.json({
+
+        success:true,
+
+        users:allUsers
+
+      });
+
+
+    }
+
+
+
+
+
+
+    // WITHDRAWS
+
+
+    if(action==="withdraws"){
+
+
+      const data =
+      await withdraws
+      .find({})
+      .sort({
+        createdAt:-1
+      })
+      .toArray();
+
+
+
+      return res.json({
+
+        success:true,
+
+        withdraws:data
+
+      });
+
+
+    }
+
+
+
+
+
+
+    // APPROVE
+
+
+    if(action==="approve"){
+
+
+      if(req.method !== "POST"){
+
+        return res.status(405).json({
+          message:"Method not allowed"
+        });
+
+      }
+
+
+
+      const { id } = req.body;
+
+
+
+      await withdraws.updateOne(
+
+        {
+          _id:new ObjectId(id)
+        },
+
+        {
+
+          $set:{
+
+            status:"Approved",
+
+            approvedAt:new Date()
+
+          }
+
+        }
+
+
+      );
+
+
+
+      return res.json({
+
+        success:true,
+
+        message:"Withdraw approved"
+
+      });
+
+
+
+    }
+
+
+
+
+
+
+
+    // REJECT
+
+
+    if(action==="reject"){
+
+
+      if(req.method !== "POST"){
+
+        return res.status(405).json({
+          message:"Method not allowed"
+        });
+
+      }
+
+
+
+      const { id } = req.body;
+
+
+
+      await withdraws.updateOne(
+
+        {
+          _id:new ObjectId(id)
+        },
+
+        {
+
+          $set:{
+
+            status:"Rejected",
+
+            rejectedAt:new Date()
+
+          }
+
+        }
+
+
+      );
+
+
+
+      return res.json({
+
+        success:true,
+
+        message:"Withdraw rejected"
+
+      });
+
+
+    }
+
+
+
+
+
+
+    return res.status(400).json({
+
+      success:false,
+
+      message:"Invalid action"
+
+    });
+
+
+
+  } catch(error){
+
+
+    console.log(error);
+
+
+    return res.status(500).json({
+
+      success:false,
+
+      message:error.message
+
+    });
+
+
+
+  } finally {
+
+
+    await client.close();
+
+
+  }
 
 
 };
-
-
-}
